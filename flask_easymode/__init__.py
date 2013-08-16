@@ -1,5 +1,4 @@
 from flask import current_app
-from flask.json import JSONEncoder
 
 from .exceptions import XHRError, handle_xhr_error
 
@@ -18,19 +17,10 @@ class EasyMode(object):
 	# because there is no built in function in flask yet to do it.
 	def enable_xhr(self):
 		self.app.config['XHR_API_ENABLED'] = True
-		self.app.json_encoder = CustomJSONEncoder
 		self.app.error_handler_spec.setdefault(None, {}).setdefault(None, []) \
 		.append((XHRError, handle_xhr_error))
 
 	def disable_xhr(self):
 		self.app.config['XHR_API_ENABLED'] = False
-		self.app.json_encoder = JSONEncoder
 		t = (XHRError, handle_xhr_error)
 		self.app.error_handler_spec[None][None].remove(t)
-
-
-class CustomJSONEncoder(JSONEncoder):
-
-	def __init__(self, *args, **kwargs):
-		kwargs['namedtuple_as_object'] = True
-		super(CustomJSONEncoder, self).__init__(*args, **kwargs)

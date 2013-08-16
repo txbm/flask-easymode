@@ -20,7 +20,7 @@ def xhr_api():
 			g.xhr = xhr({}, [])
 			f(*args, **kwargs)
 			g.xhr.messages.extend(get_flashed_messages(with_categories=True))
-			return jsonify(g.xhr)
+			return jsonify(data=g.xhr.data, messages=g.xhr.messages)
 		return _wrapper
 	return _decorator
 
