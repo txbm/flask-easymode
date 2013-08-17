@@ -32,7 +32,9 @@ setup(
 	platforms='any',
 	install_requires=[
 		'Flask',
-		'Werkzeug'
+		'Werkzeug',
+		'blinker',
+		'simplejson'
 	],
 	classifiers=[
 		'Environment :: Web Environment',
