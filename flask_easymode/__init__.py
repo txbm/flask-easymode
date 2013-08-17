@@ -12,6 +12,7 @@ class EasyMode(object):
 	def init_app(self, app):
 		self.app = app
 		self.app.config['XHR_API_ENABLED'] = False
+		self.app.config['XHR_API_ALLOW_HTTP'] = False
 
 	# as dirty as this looks, it's the best way to do it without using the decorator
 	# because there is no built in function in flask yet to do it.

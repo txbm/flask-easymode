@@ -37,6 +37,20 @@ def create_app():
 		g.xhr.data['test'] = 'monkey'
 		raise XHRError('Disaster befalls the city', status_code=500)
 
+	@app.route('/xhr-that-returns-something')
+	@xhr_api()
+	def xhr_that_returns_something():
+		g.xhr.data['test'] = 'monkey'
+		return 'Here is some string that would never be returned if the XHR API were active.'
+
+	@app.route('/xhr-that-allows-regular-http')
+	@xhr_api(allow_http=True)
+	def xhr_that_allows_regular_http():
+		g.xhr.data['test'] = 'monkey'
+		flash('A message in a bottle.')
+		return 'Here is some regular return stuff'
+
+
 	return app
 
 app = create_app()
