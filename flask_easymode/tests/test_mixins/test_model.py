@@ -46,7 +46,6 @@ def test_read():
 	o.as_dict
 	o.as_json
 
-
 def test_update():
 
 	data_dict = {'name': 'CRUD Woman', 'catch_phrase': 'Cant change this'}

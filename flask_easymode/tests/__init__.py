@@ -50,7 +50,6 @@ def create_app():
 		flash('A message in a bottle.')
 		return 'Here is some regular return stuff'
 
-
 	return app
 
 app = create_app()
