@@ -18,7 +18,7 @@ Initializing this extension does very little other than associate the applicatio
 from setuptools import setup, find_packages
 
 setup(
-	name='Flask-EasyMode',
+	name='flask-easymode',
 	version='0.1',
 	url='http://github.com/petermelias/flask-easymode',
 	license='BSD',
