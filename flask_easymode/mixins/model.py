@@ -12,9 +12,9 @@ object_deleted = crud_signals.signal('object_deleted')
 class Create(object):
 
 	@classmethod
-	def create(cls):
+	def create(cls, **kwargs):
 		o = cls()
-		object_created.send(o)
+		object_created.send(o, **kwargs)
 		return o
 
 class Read(object):
