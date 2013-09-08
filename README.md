@@ -224,6 +224,7 @@ def lookup_user(user):
 	some_other_user = User.read(filters=[User.name=='Mike', User.age>=12]) # read comes from CRUD
 	user_list = User.read_many(filters=[User.age>=21]) # as does read_many (shortcuts _many=True)
 
+```
 
 As you can see this is both a fun, concise and robust way to set up data handling since it requires
 the bare minimum amount of code to build an efficient framework for loading and modifying data.
