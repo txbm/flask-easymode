@@ -1,8 +1,7 @@
-Flask EasyMode
-==============
+# Flask EasyMode
 
-Motivation
-----------
+## Motivation
+
 
 This package was mainly created to consolidate and provide an API for common 
 patterns that come up when using Flask for standard web applications.
@@ -11,15 +10,14 @@ Primarily it focuses on web API patterns, and view <--> model data handling
 patterns that generally do not change very often and can be very repetitive
 at times.
 
-Design
-------
+## Design
 
 This extension uses Blinker heavily to provide abstract plug points and assume
 nothing about the application of any of the features provided by the API.
 Generally speaking, you are expected to register Blinker recipient functions
 in order to define your application specific behavior.
 
-I highly recommend using ```python @signal.connect``` and ```python @signal.connect_via```
+I highly recommend using ```@signal.connect``` and ```@signal.connect_via```
 to register generic and increasingly specific handlers. This has the pleasant
 effect of being efficient, lightweight, and decoupled.
 
@@ -42,18 +40,16 @@ optionally-enabled features until you have enabled them. In some cases
 they will simply ignore you, in other cases they will throw errors.
 
 
-Features
---------
+## Features
 
 * View Function Dependency-Injection of Models (by far the coolest feature)
 * Fully Automatic XHR API Mode (error handling, data serialization, and more)
 * Totally Abstract CRUD Mixins (examples using SQLAlchemy in Wiki)
-* Useful View Helper functions such as ```python redirect_self()``` and ```python redirect_next()```
+* Useful View Helper functions such as ```redirect_self()``` and ```redirect_next()```
 
-Examples
---------
+## Examples
 
-*View Function DI*
+### View Function DI
 
 This example uses SQLAlchemy to look up our hypothetical user. Understand that the point
 of using Signals here is that you can attach any lookup system you want. Totally abstract.
@@ -133,7 +129,7 @@ def worship_pharoah():
 	p = g.pharoah_of_egypt
 ```
 
-* Full Auto XHR *
+### Full Auto XHR
 
 This is really useful when you're communicating with a JavaScript frontend.
 
@@ -174,10 +170,12 @@ with app.app_context() as c:
 There are many options and behavior notes for the XHR API but they are for specific
 use cases that will be documented in the Wiki.
 
-* Abstract CRUD Interface *
+### Abstract CRUD Interface
 
 Mixins and signals for attaching CRUD handlers. Also includes the Injectable mixin
 and a bundled one if you want the super bonus 5-pack. See the CRUDI mixin.
+
+```python
 
 class User(CRUD): pass
 
@@ -232,11 +230,10 @@ the bare minimum amount of code to build an efficient framework for loading and 
 In otherwords, no ActiveRecord bullshit here.
 
 Also, keep in mind that ALL signalling uses **kwargs. You can make your handlers as simple and/or
-as complex as possible, this library tries to assume the minimum level of convenience for the
-consumer and uses private kwarg keys to avoid polluting your public API namespace.
+as complex as needed. This library tries to assume the minimum level of convenience for the
+consumer and uses private kwarg keys internally to avoid polluting your public API-space.
 
 Fork, extend, merge, repeat!
 
-License
--------
+## License
 MIT
