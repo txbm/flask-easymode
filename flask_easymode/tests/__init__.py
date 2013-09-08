@@ -76,6 +76,11 @@ def create_app():
 	def inject_test_class_args(injectable_class):
 		return 'I have been injected with %s' % injectable_class.slug_name
 
+	@app.route('/inject-non-injectable/<non_injectable_class_slug_name>')
+	@inject('non_injectable_class')
+	def inject_the_noninjectable():
+		return 'This will never happen because there will be an exception :('
+
 	return app
 
 def app_setup():

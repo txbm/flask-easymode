@@ -1,5 +1,5 @@
 from nose.tools.nontrivial import with_setup
-from nose.tools.trivial import assert_equals, assert_in, assert_true
+from nose.tools.trivial import assert_equals, assert_in, assert_true, assert_raises
 
 from simplejson import loads
 
@@ -70,3 +70,18 @@ def test_inject():
 
 			r = c.get('/inject-as-arg/joe-slug')
 			assert_in('joe-slug', r.data)
+
+			with assert_raises(RuntimeError):
+				r = c.get('/inject-non-injectable/here-comes-an-error')
+
+			em.add_injectable(NonInjectableClass)
+
+			with assert_raises(RuntimeError):
+				r = c.get('/inject-non-injectable/still-going-to-fail')
+
+@with_setup(app_setup)
+def test_inject_off():
+	with app.app_context():
+		with app.test_client() as c:
+			with assert_raises(Exception):
+				r = c.get('/inject/only-bad-can-come-of-this')

@@ -37,6 +37,9 @@ def inject(*classes, **options):
 	def _decorator(f):
 		@wraps(f)
 		def _wrapper(*args, **kwargs):
+			if not current_app.config.get('VIEW_DI_ENABLED'):
+				return f(*args, **kwargs)
+				
 			classes_by_len = sorted(classes, key=len) # most to least specific to eliminate ambiguity when dealing with nested prefix class names
 			classes_by_len.reverse()
 			ctx = _app_ctx_stack.top
@@ -65,7 +68,7 @@ def inject(*classes, **options):
 					try:
 						o = i['class'].load(i['conditions'])
 					except AttributeError:
-						raise RuntimeError('To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i.cls.__name__)
+						raise RuntimeError('To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
 					
 					if options.get('as_args'):
 						kwargs[cls_name] = o
