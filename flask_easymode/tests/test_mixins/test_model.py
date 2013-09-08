@@ -17,7 +17,7 @@ class CRUDMan(CRUD):
 def test_create():
 
 	@object_created.connect
-	def create_fxn(o, **kwargs):
+	def create_fxn(cls, o, **kwargs):
 		o.touched_by_signal = True
 
 	o = CRUDMan.create()

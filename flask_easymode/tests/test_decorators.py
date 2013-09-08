@@ -1,9 +1,9 @@
 from nose.tools.nontrivial import with_setup
-from nose.tools.trivial import assert_equals, assert_in
+from nose.tools.trivial import assert_equals, assert_in, assert_true
 
 from simplejson import loads
 
-from . import app_setup, em, app
+from . import app_setup, em, app, InjectableClass, NonInjectableClass
 
 @with_setup(app_setup)
 def test_xhr_api():
@@ -42,8 +42,9 @@ def test_xhr_api():
 			assert_in('test', py_data['data'].keys())
 			assert_in('A message in a bottle.', py_data['messages'][0])
 
-		em.disable_xhr()
-
+@with_setup(app_setup)
+def test_xhr_api_off():
+	with app.app_context():
 		with app.test_client() as c:
 			r = c.get('/')
 			assert_in('I am the index page.', r.data)
@@ -57,3 +58,15 @@ def test_xhr_api():
 			r = c.get('/xhr-that-returns-something')
 			assert_in('some string', r.data)
 
+@with_setup(app_setup)
+def test_inject():
+	with app.app_context():
+		em.enable_injection()
+		em.add_injectable(InjectableClass)
+
+		with app.test_client() as c:
+			r = c.get('/inject/joe-slug')
+			assert_in('joe-slug', r.data)
+
+			r = c.get('/inject-as-arg/joe-slug')
+			assert_in('joe-slug', r.data)

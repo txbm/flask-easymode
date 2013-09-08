@@ -2,19 +2,20 @@ from simplejson import dumps
 from blinker import Namespace
 from datetime import datetime
 
-crud_signals = Namespace()
+easy_signals = Namespace()
 
-object_created = crud_signals.signal('object_created')
-object_read = crud_signals.signal('object_read')
-object_updated = crud_signals.signal('object_updated')
-object_deleted = crud_signals.signal('object_deleted')
+object_created = easy_signals.signal('object_created')
+object_read = easy_signals.signal('object_read')
+object_updated = easy_signals.signal('object_updated')
+object_deleted = easy_signals.signal('object_deleted')
+object_injected = easy_signals.signal('object_injected')
 
 class Create(object):
 
 	@classmethod
 	def create(cls, **kwargs):
 		o = cls()
-		object_created.send(o, **kwargs)
+		object_created.send(cls, o=o, **kwargs)
 		return o
 
 class Read(object):
@@ -24,12 +25,16 @@ class Read(object):
 	@classmethod
 	def read(cls, **kwargs):
 		r = object_read.send(cls, **kwargs)
-		return r[0][1]
+		try:
+			return r[0][1]
+		except IndexError: pass
 
 	@classmethod
 	def read_many(cls, **kwargs):
 		r = object_read.send(cls, _many=True, **kwargs)
-		return r[0][1]
+		try:
+			return r[0][1]
+		except IndexError: pass
 
 	@property
 	def as_dict(self):
@@ -41,11 +46,15 @@ class Read(object):
 				if value is None:
 					continue
 				value = getattr(value, part)
-
-			# TODO: think about adding some flexibility to the type handling 
-			if type(value) is datetime:
-				value = str(value)
-
+			
+			# while this may seem unilateral at first glance,
+			# this method is designed to dump an object
+			# presumably for transmission over the wire.
+			# while there are probably use cases for preserving
+			# the original types of every value, they are edge cases
+			# that I am not going to support from the get go.
+			value = str(value)
+		
 			d[attr.replace('.', '_')] = value
 		return d
 
@@ -60,7 +69,9 @@ class Update(object):
 	def update(self, **kwargs):
 		filtered = dict([(k, v) for k, v in kwargs.iteritems() if k in self._updateable])
 		[setattr(self, k, v) for k, v in filtered.iteritems()]
-		return object_updated.send(self, **filtered)[0][1]
+		try:
+			return object_updated.send(self, **filtered)[0][1]
+		except IndexError: pass
 
 class Delete(object):
 
@@ -68,3 +79,15 @@ class Delete(object):
 		object_deleted.send(self)
 
 class CRUD(Create, Read, Update, Delete): pass
+
+class Injectable(object):
+
+	@classmethod
+	def load(cls, conditions, **kwargs):
+		r = object_injected.send(cls, conditions=conditions, **kwargs)
+		print r
+		try:
+			return r[0][1]
+		except IndexError: pass
+
+class CRUDI(CRUD, Injectable): pass

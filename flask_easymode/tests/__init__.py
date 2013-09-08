@@ -1,8 +1,9 @@
 from flask import Flask, flash, g
 
 from .. import EasyMode
-from ..decorators import xhr_api
+from ..decorators import xhr_api, inject
 from ..exceptions import XHRError
+from ..mixins.model import CRUD, CRUDI, object_injected
 
 em = EasyMode()
 
@@ -16,8 +17,10 @@ def create_app():
 	@app.route('/xhr')
 	@xhr_api()
 	def xhr_endpoint():
-		g.xhr.data['test'] = 'monkey'
-		g.xhr.data['walrus'] = 'punch'
+		try:
+			g.xhr.data['test'] = 'monkey'
+			g.xhr.data['walrus'] = 'punch'
+		except AttributeError: pass
 
 		flash('This is a test message.')
 		flash('This is a warning.', 'warning')
@@ -28,33 +31,69 @@ def create_app():
 	@app.route('/xhr-failure')
 	@xhr_api()
 	def xhr_failure():
-		g.xhr.data['test'] = 'monkey'
+		try:
+			g.xhr.data['test'] = 'monkey'
+		except AttributeError: pass
+
 		raise XHRError('Disaster everywhere.')
 
 	@app.route('/xhr-failure-with-code')
 	@xhr_api()
 	def xhr_failure_with_code():
-		g.xhr.data['test'] = 'monkey'
+		try:
+			g.xhr.data['test'] = 'monkey'
+		except AttributeError: pass
+
 		raise XHRError('Disaster befalls the city', status_code=500)
 
 	@app.route('/xhr-that-returns-something')
 	@xhr_api()
 	def xhr_that_returns_something():
-		g.xhr.data['test'] = 'monkey'
+		try:
+			g.xhr.data['test'] = 'monkey'
+		except AttributeError: pass
+
 		return 'Here is some string that would never be returned if the XHR API were active.'
 
 	@app.route('/xhr-that-allows-regular-http')
 	@xhr_api(allow_http=True)
 	def xhr_that_allows_regular_http():
-		g.xhr.data['test'] = 'monkey'
+		try:
+			g.xhr.data['test'] = 'monkey'
+		except AttributeError: pass
+
 		flash('A message in a bottle.')
+		
 		return 'Here is some regular return stuff'
 
+	@app.route('/inject/<injectableclass_slug_name>')
+	@inject('injectableclass')
+	def inject_test_class_slug_name():
+		return 'I have been injected with %s' % g.injectableclass.slug_name
+
+	@app.route('/inject-as-arg/<injectableclass_slug_name>')
+	@inject('injectableclass', as_args=True)
+	def inject_test_class_args(injectableclass):
+		return 'I have been injected with %s' % injectableclass.slug_name
+
 	return app
+
+def app_setup():
+	em.init_app(app)
+
+class InjectableClass(CRUDI):
+
+	def __init__(self):
+		self.slug_name = 'joe-slug'
+
+class NonInjectableClass(CRUD): pass
+
+@object_injected.connect_via(InjectableClass)
+def injectable_injected(cls, conditions, **kwargs):
+	for k, v in conditions:
+		if k == 'slug_name' and v == 'joe-slug':
+			return InjectableClass()
 
 app = create_app()
 app.config['TESTING'] = True
 app.config['SECRET_KEY'] = '123454fdsafdsfdsfdsfds'
-
-def app_setup():
-	em.init_app(app)
