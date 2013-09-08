@@ -24,7 +24,7 @@ effect of being efficient, lightweight, and decoupled.
 I have made an effort to modularize and break up the various features so that
 this package still follows the "opt-in" philosophy of Flask and its extensions.
 
-For this reason, init_app() does almost nothing until you start enabling specific
+For this reason, ```init_app()``` does almost nothing until you start enabling specific
 features which will start touching config variables and the application context stack.
 
 Much of the functionality is contained within mixins, helpers, and decorators which
@@ -61,7 +61,8 @@ em = EasyMode()
 em.init_app(app)
 with app.app_context():
 	em.enable_injection()
-	em.add_injectable(User)
+	em.add_injectable(User) # DO NOT FORGET TO DO THIS
+	# Sadly, EasyMode cannot magically know where you like to keep your injectable models
 
 # inherit user from Injectable mixin
 class User(object, Injectable):
@@ -93,12 +94,12 @@ with app.test_client() as c:
 ```
 
 Super cool. Imagine all the code you can delete now because you don't have to lookup models
-from your view_args.
+from your ```view_args```.
 
-But wait, it get's better: request.form is also checked for dependencies, so you can post params
-as well and they will get picked up.
+For anybody who is wondering, ```request.form``` is also checked for dependencies, so you can post params
+as well and they will get picked up and injected right alongside url params. Merge behavior of course.
 
-If you don't like the g object behavior, do this instead:
+If you don't like the auto-g-assignment, do this instead:
 
 ```python
 @app.route('/user/edit/<user_name>')
@@ -177,7 +178,10 @@ and a bundled one if you want the super bonus 5-pack. See the CRUDI mixin.
 
 ```python
 
-class User(CRUD): pass
+class User(CRUD):
+
+	_updateable = ('name', 'age', 'gender') # define this for auto-update feature
+	_readable = ('id', 'name', 'age', 'gender') # define this for auto-serialization feature
 
 # or if you want Injectable too
 # class User(CRUDI): pass
@@ -211,6 +215,10 @@ def read_model(model, _many=False, **kwargs):
 		r = query.first()
 	return r
 
+@object_deleted.connect
+def delete_object(o, **kwargs):
+	session.delete(o) # owned
+
 # and in our view...
 
 @app.route('/user/lookup/<user_name>')
@@ -221,6 +229,8 @@ def lookup_user(user):
 
 	some_other_user = User.read(filters=[User.name=='Mike', User.age>=12]) # read comes from CRUD
 	user_list = User.read_many(filters=[User.age>=21]) # as does read_many (shortcuts _many=True)
+ 
+	return jsonify(**some_other_user.as_dict) # as_dict and as_json come from CRUD
 
 ```
 
@@ -229,11 +239,15 @@ the bare minimum amount of code to build an efficient framework for loading and 
 
 In otherwords, no ActiveRecord bullshit here.
 
-Also, keep in mind that ALL signalling uses **kwargs. You can make your handlers as simple and/or
+Also, keep in mind that ALL signalling uses ```**kwargs.``` You can make your handlers as simple and/or
 as complex as needed. This library tries to assume the minimum level of convenience for the
 consumer and uses private kwarg keys internally to avoid polluting your public API-space.
 
 Fork, extend, merge, repeat!
+
+## Tests
+
+```nosetests```
 
 ## License
 MIT
