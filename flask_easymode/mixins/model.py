@@ -85,7 +85,6 @@ class Injectable(object):
 	@classmethod
 	def load(cls, conditions, **kwargs):
 		r = object_injected.send(cls, conditions=conditions, **kwargs)
-		print r
 		try:
 			return r[0][1]
 		except IndexError: pass

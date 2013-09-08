@@ -66,15 +66,15 @@ def create_app():
 		
 		return 'Here is some regular return stuff'
 
-	@app.route('/inject/<injectableclass_slug_name>')
-	@inject('injectableclass')
+	@app.route('/inject/<injectable_class_slug_name>')
+	@inject('injectable_class')
 	def inject_test_class_slug_name():
-		return 'I have been injected with %s' % g.injectableclass.slug_name
+		return 'I have been injected with %s' % g.injectable_class.slug_name
 
-	@app.route('/inject-as-arg/<injectableclass_slug_name>')
-	@inject('injectableclass', as_args=True)
-	def inject_test_class_args(injectableclass):
-		return 'I have been injected with %s' % injectableclass.slug_name
+	@app.route('/inject-as-arg/<injectable_class_slug_name>')
+	@inject('injectable_class', as_args=True)
+	def inject_test_class_args(injectable_class):
+		return 'I have been injected with %s' % injectable_class.slug_name
 
 	return app
 
