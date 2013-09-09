@@ -39,29 +39,38 @@ def inject(*classes, **options):
 		def _wrapper(*args, **kwargs):
 			if not current_app.config.get('VIEW_DI_ENABLED'):
 				return f(*args, **kwargs)
-				
-			classes_by_len = sorted(classes, key=len) # most to least specific to eliminate ambiguity when dealing with nested prefix class names
+			
+			# most to least specific to eliminate ambiguity when dealing with nested prefix class names
+			classes_by_len = sorted(classes, key=len)
 			classes_by_len.reverse()
+
 			ctx = _app_ctx_stack.top
 
-			def _extract_injections(kvps):
-				injections = {}
-				for k, v in kvps.iteritems():
-					for cls_name in classes_by_len:
-						r = k.replace(cls_name, '')
-						if r != k:
-							prop_name = r[1:]
-							try:
-								cls = ctx._injectables[cls_name]
-							except KeyError:
-								raise RuntimeError('You must add %s as an injectable before it can injected! Use EasyMode.add_injectable(cls).')
-							
-							injections.setdefault(cls_name, {'class': cls, 'params': [], 'conditions': []})
-							injections[cls_name]['params'].append(k)
-							injections[cls_name]['conditions'].append((prop_name, v))
-				return injections
+			injections = {}
 
-			injections = dict(_extract_injections(kwargs).items() + _extract_injections(request.form.to_dict()).items())
+			def _param_to_cls_prop_pair(param):
+				for cls_name in classes_by_len:
+					r = param.replace(cls_name, '')
+					if r != param:
+						return (cls_name, r[1:])
+
+			def _extract_injections(kvps):
+				for k, v in kvps.iteritems():
+					cls_name, prop_name = _param_to_cls_prop_pair(k)
+					
+					injections[cls_name]['params'].append(k)
+					injections[cls_name]['conditions'].append((prop_name, v))
+
+			for cls_name in classes:
+				try:
+					cls = ctx._injectables[cls_name]
+				except KeyError:
+					raise RuntimeError('Class "%s" has not been added as injectable. Use EasyMode.add_injectable(cls_name).' % cls_name)
+
+				injections.setdefault(cls_name, {'class': cls, 'params': [], 'conditions': []})
+			
+			_extract_injections(kwargs)
+			_extract_injections(request.form.to_dict())
 
 			for cls_name, i in injections.iteritems():
 				if cls_name in classes:
