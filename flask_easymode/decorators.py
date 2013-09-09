@@ -1,9 +1,10 @@
 from flask import current_app, redirect, request, flash, url_for, g, \
-	abort, get_flashed_messages, jsonify, _app_ctx_stack
+	abort, get_flashed_messages, jsonify
 
 from functools import wraps
 from collections import namedtuple
 
+from . import EasyMode
 from .exceptions import XHRError
 
 xhr = namedtuple('xhr', ('data', 'messages'))
@@ -44,8 +45,6 @@ def inject(*classes, **options):
 			classes_by_len = sorted(classes, key=len)
 			classes_by_len.reverse()
 
-			ctx = _app_ctx_stack.top
-
 			injections = {}
 
 			def _param_to_cls_prop_pair(param):
@@ -63,7 +62,7 @@ def inject(*classes, **options):
 
 			for cls_name in classes:
 				try:
-					cls = ctx._injectables[cls_name]
+					cls = EasyMode._injectables[cls_name]
 				except KeyError:
 					raise RuntimeError('Class "%s" has not been added as injectable. Use EasyMode.add_injectable(cls_name).' % cls_name)
 
