@@ -7,7 +7,14 @@ from collections import namedtuple
 from . import EasyMode
 from .exceptions import XHRError
 
-xhr = namedtuple('xhr', ('data', 'messages'))
+xhr = namedtuple('xhr', ('data', 'messages', 'html'))
+
+class XHR(object):
+
+	def __init__(self):
+		self.html = ''
+		self.data = {}
+		self.messages = []
 
 def xhr_api(allow_http=None):
 	def _decorator(f):
@@ -26,10 +33,10 @@ def xhr_api(allow_http=None):
 			if not request.is_xhr and not a:
 				raise XHRError('XHR endpoints must be called asynchronously.', status_code=500)
 
-			g.xhr = xhr({}, [])
+			g.xhr = XHR()
 			f(*args, **kwargs)
 			g.xhr.messages.extend(get_flashed_messages(with_categories=True))
-			return jsonify(data=g.xhr.data, messages=g.xhr.messages)
+			return jsonify(data=g.xhr.data, messages=g.xhr.messages, html=g.xhr.html)
 		return _wrapper
 	return _decorator
 
@@ -55,7 +62,10 @@ def inject(*classes, **options):
 
 			def _extract_injections(kvps):
 				for k, v in kvps.iteritems():
-					cls_name, prop_name = _param_to_cls_prop_pair(k)
+					try:
+						cls_name, prop_name = _param_to_cls_prop_pair(k)
+					except TypeError:
+						continue
 					
 					injections[cls_name]['params'].append(k)
 					injections[cls_name]['conditions'].append((prop_name, v))
