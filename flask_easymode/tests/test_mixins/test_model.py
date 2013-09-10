@@ -51,15 +51,15 @@ def test_update():
 	data_dict = {'name': 'CRUD Woman', 'catch_phrase': 'Cant change this'}
 
 	@object_updated.connect
-	def updating_fxn(o, **kwargs):
-		assert_equals(o.name, 'CRUD Woman')
+	def updating_fxn(cls, o, **kwargs):
+		assert_equals(o.name, 'CRUD Man')
 		assert_equals(o.catch_phrase, 'I am CRUD Man. Fear my power.')
 		return o.as_dict
 
 	o = CRUDMan.create()
 
-	r = o.update(**data_dict)
-	assert_equals(r, {'name': 'CRUD Woman', 'catch_phrase': 'I am CRUD Man. Fear my power.'})
+	r = CRUDMan.update(o, **data_dict)
+	assert_equals(r, {'name': 'CRUD Man', 'catch_phrase': 'I am CRUD Man. Fear my power.'})
 
 def test_delete():
 

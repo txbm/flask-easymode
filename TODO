@@ -4,3 +4,4 @@
 * Allow injectables to be injected under and alternate name from the class name (aliases basically, for brevity)
 * Examine a way to have the injector read data that has been validated already. This may become important in order to support the possibility of the incoming data needing to be transformed in some way before it can be used for proper lookup. Also makes it easy to abort a request that's missing data before wasting a trip to the database only to reach the same conclusion.
 * Add interface to inject list of classes. Make it take tuples for aliased names and/or a dictionary
+* Make the update signal actually a class method in order to allow consumers to implement their own behavior. Same as all the other signals...

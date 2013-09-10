@@ -20,8 +20,6 @@ class Create(object):
 
 class Read(object):
 
-	_readable = ()
-
 	@classmethod
 	def read(cls, **kwargs):
 		r = object_read.send(cls, **kwargs)
@@ -64,13 +62,11 @@ class Read(object):
 
 class Update(object):
 
-	_updateable = ()
-
-	def update(self, **kwargs):
-		filtered = dict([(k, v) for k, v in kwargs.iteritems() if k in self._updateable])
-		[setattr(self, k, v) for k, v in filtered.iteritems()]
+	@classmethod
+	def update(cls, o, **kwargs):
+		r = object_updated.send(cls, o=o, **kwargs)
 		try:
-			return object_updated.send(self, **filtered)[0][1]
+			return r[0][1]
 		except IndexError: pass
 
 class Delete(object):
