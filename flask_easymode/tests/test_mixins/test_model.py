@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from nose.tools.trivial import assert_equals, assert_true, assert_is_instance, assert_in
 
 from ...mixins.model import CRUD, object_created, object_read, object_updated, \

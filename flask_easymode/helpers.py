@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import request, redirect, url_for
 
 def redirect_to_self(clear=False):

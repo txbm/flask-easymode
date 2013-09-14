@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import current_app, redirect, request, flash, url_for, g, \
 	abort, get_flashed_messages, jsonify
 

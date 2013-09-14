@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from simplejson import dumps
 from blinker import Namespace
 from datetime import datetime

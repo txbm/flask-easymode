@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from nose.tools.nontrivial import with_setup
 from nose.tools.trivial import assert_equals, assert_in, assert_true, assert_raises
 
