@@ -47,13 +47,7 @@ class Read(object):
 					continue
 				value = getattr(value, part)
 			
-			# while this may seem unilateral at first glance,
-			# this method is designed to dump an object
-			# presumably for transmission over the wire.
-			# while there are probably use cases for preserving
-			# the original types of every value, they are edge cases
-			# that I am not going to support from the get go.
-			value = str(value)
+			value = unicode(value)
 		
 			d[attr.replace('.', '_')] = value
 		return d
