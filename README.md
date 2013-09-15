@@ -59,10 +59,18 @@ of using Signals here is that you can attach any lookup system you want. Totally
 # setup app
 em = EasyMode()
 em.init_app(app)
-with app.app_context():
-	em.enable_injection()
-	em.add_injectable(User) # DO NOT FORGET TO DO THIS
-	# Sadly, EasyMode cannot magically know where you like to keep your injectable models
+em.enable_injection(app)
+em.add_injectable(User) # DO NOT FORGET TO DO THIS
+
+# Sadly, EasyMode cannot magically know where you like to keep your injectable models
+# If you have a class you want ID'd by an alternate name, do this:
+
+em.add_injectable(User, alt='Uzer')
+
+# Keep in mind if you load the same class many times with multiple 
+# alternate names, they will all trigger loading of that same class
+# if present during the actual injection phase. In some unusual cases
+# this is actually desireable behavior.
 
 # inherit user from Injectable mixin
 class User(object, Injectable):
@@ -75,12 +83,11 @@ class User(object, Injectable):
 def lookup_user(cls, conditions, **kwargs)
 	query = session.query(cls)
 	for attr, value in conditions:
-		query.filter(attr==value)
+		query.filter(getattr(cls, attr)==value)
 	return query.first()
 	# or redis
 	# or cassandra
 	# or a floppy disk
-
 
 # setup routes
 @app.route('/user/edit/<user_name>')
@@ -99,6 +106,8 @@ from your ```view_args```.
 For anybody who is wondering, ```request.form``` is also checked for dependencies, so you can post params
 as well and they will get picked up and injected right alongside url params. Merge behavior of course.
 
+...and as of recently ```request.get_json()``` is ALSO checked for incoming parameters and merged as well. Trifecta.
+
 If you don't like the auto-g-assignment, do this instead:
 
 ```python
@@ -114,7 +123,7 @@ Just when you thought it was over... you can specify unlimited conditions.
 @app.route('/users/list/<user_name>/<user_age>/<user_eye_color>')
 @inject('user')
 def users_list():
-	print users # [User, User, User] all matching the parameters if your lookup function works
+	print users # [User, User, User] all matching the parameters assuming your lookup function actually does that.
 
 ```
 
@@ -138,8 +147,7 @@ This is really useful when you're communicating with a JavaScript frontend.
 # app
 em = EasyMode()
 em.init_app(app)
-with app.app_context():
-	em.enable_xhr()
+em.enable_xhr(app)
 
 @app.route('/some-xhr-endpoint')
 @xhr_api()
@@ -178,10 +186,7 @@ and a bundled one if you want the super bonus 5-pack. See the CRUDI mixin.
 
 ```python
 
-class User(CRUD):
-
-	_updateable = ('name', 'age', 'gender') # define this for auto-update feature
-	_readable = ('id', 'name', 'age', 'gender') # define this for auto-serialization feature
+class User(CRUD): pass
 
 # or if you want Injectable too
 # class User(CRUDI): pass
@@ -231,6 +236,12 @@ def lookup_user(user):
 	user_list = User.read_many(filters=[User.age>=21]) # as does read_many (shortcuts _many=True)
  
 	return jsonify(**some_other_user.as_dict) # as_dict and as_json come from CRUD
+
+	# you can either attach your own as_dict / as_json functions or use the defaults
+	# in future versions.
+	# bear in mind that if you use the built in ones, you will need to define a 
+	# _updateable and _readable property on your CRUD classes. This will not be
+	# necessary in the next release.
 
 ```
 
