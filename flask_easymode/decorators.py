@@ -84,6 +84,7 @@ def inject(*classes, **options):
 			_extract_injections(request.form.to_dict())
 			json = request.get_json(silent=True) or {}
 			_extract_injections(json)
+			_extract_injections(request.args)
 
 			for cls_name, i in injections.iteritems():
 				if cls_name in classes:
