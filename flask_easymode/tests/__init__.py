@@ -83,6 +83,12 @@ def create_app():
 	def inject_the_noninjectable():
 		return 'This will never happen because there will be an exception :('
 
+	@app.route('/inject-skip-by-default', defaults={'injectable_class_slug_name': None})
+	@app.route('/inject-skip-by-default/<injectable_class_slug_name>')
+	@inject('injectable_class', default='skip', as_args=True)
+	def inject_skip_by_default(injectable_class):
+		return injectable_class.slug_name
+
 	return app
 
 def app_setup():

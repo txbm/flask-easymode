@@ -78,6 +78,9 @@ def test_inject():
 		with assert_raises(RuntimeError):
 			r = c.get('/inject-non-injectable/still-going-to-fail')
 
+		with assert_raises(AttributeError):
+			r = c.get('/inject-skip-by-default')
+
 @with_setup(app_setup)
 def test_inject_off():
 	with app.test_client() as c:

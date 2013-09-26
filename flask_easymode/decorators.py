@@ -55,6 +55,7 @@ def inject(*classes, **options):
 			classes_by_len.reverse()
 
 			injections = {}
+			options.setdefault('default', 'load')
 
 			def _param_to_cls_prop_pair(param):
 				for cls_name in classes_by_len:
@@ -88,11 +89,13 @@ def inject(*classes, **options):
 
 			for cls_name, i in injections.iteritems():
 				if cls_name in classes:
-					try:
-						o = i['class'].load(i['conditions'])
-					except AttributeError:
-						raise RuntimeError('To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
-					
+					o = None
+					if i['conditions'] or options.get('default') == 'load':
+						try:
+							o = i['class'].load(i['conditions'])
+						except AttributeError:
+							raise RuntimeError('To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
+
 					if options.get('as_args'):
 						kwargs[cls_name] = o
 					else:
