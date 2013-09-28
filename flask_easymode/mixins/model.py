@@ -39,6 +39,14 @@ class Read(object):
 	@property
 	def as_dict(self):
 		d = {}
+		
+		def process_value(value):
+			if isinstance(value, Read):
+				value = value.as_dict
+			else:
+				value = unicode(value)
+			return value
+
 		for attr in self._readable:
 			parts = attr.split('.')
 			value = getattr(self, parts[0])
@@ -46,8 +54,11 @@ class Read(object):
 				if value is None:
 					continue
 				value = getattr(value, part)
-			
-			value = unicode(value)
+
+			if hasattr(value, 'append'):
+				value = [process_value(v) for v in value]
+			else:
+				value = process_value(value)
 		
 			d[attr.replace('.', '_')] = value
 		return d
