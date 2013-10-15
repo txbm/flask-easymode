@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='flask-easymode',
-	version='0.0.10',
+	version='0.0.11',
 	url='http://github.com/petermelias/flask-easymode',
 	license='BSD',
 	author='Peter M. Elias',
@@ -19,13 +19,20 @@ setup(
 		'blinker',
 		'simplejson'
 	],
+	extras_require={
+		'test': [
+			'nose',
+			'coveralls'
+		]
+	},
+	test_suite='nose.collector',
 	classifiers=[
 		'Environment :: Web Environment',
 		'Intended Audience :: Developers',
-		'License :: OSI Approved :: BSD License',
+		'License :: OSI Approved :: MIT License',
 		'Operating System :: OS Independent',
 		'Programming Language :: Python',
 		'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
 		'Topic :: Software Development :: Libraries :: Python Modules'
-	],
+	]
 )

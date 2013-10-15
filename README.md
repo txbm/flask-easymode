@@ -1,7 +1,7 @@
 # Flask EasyMode
+[![Build Status](https://travis-ci.org/petermelias/flask-easymode.png?branch=master)](https://travis-ci.org/petermelias/flask-easymode) [![Coverage Status](https://coveralls.io/repos/petermelias/flask-easymode/badge.png?branch=master)](https://coveralls.io/r/petermelias/flask-easymode?branch=master) [![Downloads](https://pypip.in/d/flask-easymode/badge.png)](https://crate.io/packages/flask-easymode) [![Downloads](https://pypip.in/v/flask-easymode/badge.png)](https://crate.io/packages/flask-easymode)
 
 ## Motivation
-
 
 This package was mainly created to consolidate and provide an API for common 
 patterns that come up when using Flask for standard web applications.
