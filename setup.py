@@ -4,7 +4,7 @@ setup(
 	name='flask-easymode',
 	version='0.0.11',
 	url='http://github.com/petermelias/flask-easymode',
-	license='BSD',
+	license='MIT',
 	author='Peter M. Elias',
 	author_email='petermelias@gmail.com',
 	description='Make Flask development even easier',

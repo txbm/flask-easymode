@@ -258,7 +258,6 @@ Fork, extend, merge, repeat!
 
 ## Tests
 
-```nosetests```
-
-## License
-MIT
+```python
+nosetests
+```
