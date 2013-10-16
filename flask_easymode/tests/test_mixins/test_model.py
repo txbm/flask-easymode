@@ -2,8 +2,8 @@
 
 from nose.tools.trivial import assert_equals, assert_true, assert_is_instance, assert_in
 
-from ...mixins.model import CRUD, object_created, object_read, object_updated, \
-	object_deleted
+from flask_easymode.mixins.model import (CRUD, object_created, object_read, 
+	object_updated, object_deleted)
 
 
 class CRUDMan(CRUD):
@@ -45,8 +45,6 @@ def test_read():
 	assert_equals(r, 'Many things')
 
 	o = CRUDMan.create()
-	o.as_dict
-	o.as_json
 
 def test_update():
 
@@ -56,12 +54,12 @@ def test_update():
 	def updating_fxn(cls, o, **kwargs):
 		assert_equals(o.name, 'CRUD Man')
 		assert_equals(o.catch_phrase, 'I am CRUD Man. Fear my power.')
-		return o.as_dict
+		return o
 
 	o = CRUDMan.create()
 
 	r = CRUDMan.update(o, **data_dict)
-	assert_equals(r, {'name': 'CRUD Man', 'catch_phrase': 'I am CRUD Man. Fear my power.'})
+	assert_equals(r.name, 'CRUD Man')
 
 def test_delete():
 
@@ -69,7 +67,7 @@ def test_delete():
 	o.name = 'Dying CRUD Man'
 
 	@object_deleted.connect
-	def delete_fxn(o, **kwargs):
+	def delete_fxn(cls, o, **kwargs):
 		assert_equals(o.name, 'Dying CRUD Man')
 
-	o.delete()
+	CRUDMan.delete(o)

@@ -5,10 +5,17 @@ from nose.tools.trivial import assert_equals, assert_in, assert_true, assert_rai
 
 from simplejson import loads
 
-from . import app_setup, em, app, InjectableClass, NonInjectableClass
+from flask_easymode import EasyMode
+from flask_easymode.tests import create_app, InjectableClass, NonInjectableClass
 
-@with_setup(app_setup)
-def test_xhr_api():	
+def _setup():
+	app = create_app()
+	em = EasyMode()
+	em.init_app(app)
+	return (em, app)
+
+def test_xhr_api():
+	em, app = _setup()
 	em.enable_xhr(app)
 
 	with app.test_client() as c:
@@ -43,8 +50,9 @@ def test_xhr_api():
 		assert_in('test', py_data['data'].keys())
 		assert_in('A message in a bottle.', py_data['messages'][0])
 
-@with_setup(app_setup)
 def test_xhr_api_off():
+	em, app = _setup()
+	
 	with app.test_client() as c:
 		r = c.get('/')
 		assert_in('I am the index page.', r.data)
@@ -58,8 +66,9 @@ def test_xhr_api_off():
 		r = c.get('/xhr-that-returns-something')
 		assert_in('some string', r.data)
 
-@with_setup(app_setup)
 def test_inject():
+	em, app = _setup()
+	em.enable_xhr(app)
 	em.enable_injection(app)
 	em.add_injectable(InjectableClass)
 
@@ -81,8 +90,9 @@ def test_inject():
 		with assert_raises(AttributeError):
 			r = c.get('/inject-skip-by-default')
 
-@with_setup(app_setup)
 def test_inject_off():
+	em, app = _setup()
+	
 	with app.test_client() as c:
 		with assert_raises(Exception):
 			r = c.get('/inject/only-bad-can-come-of-this')

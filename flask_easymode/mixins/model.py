@@ -36,37 +36,6 @@ class Read(object):
 			return r[0][1]
 		except IndexError: pass
 
-	@property
-	def as_dict(self):
-		d = {}
-		
-		def process_value(value):
-			if isinstance(value, Read):
-				value = value.as_dict
-			else:
-				value = unicode(value)
-			return value
-
-		for attr in self._readable:
-			parts = attr.split('.')
-			value = getattr(self, parts[0])
-			for part in parts[1:]:
-				if value is None:
-					continue
-				value = getattr(value, part)
-
-			if hasattr(value, 'append'):
-				value = [process_value(v) for v in value]
-			else:
-				value = process_value(value)
-		
-			d[attr.replace('.', '_')] = value
-		return d
-
-	@property
-	def as_json(self):
-		return dumps(self.as_dict)
-
 class Update(object):
 
 	@classmethod
@@ -78,8 +47,12 @@ class Update(object):
 
 class Delete(object):
 
-	def delete(self):
-		object_deleted.send(self)
+	@classmethod
+	def delete(cls, o, **kwargs):
+		r = object_deleted.send(cls, o=o, **kwargs)
+		try:
+			return r[0][1]
+		except IndexError: pass
 
 class CRUD(Create, Read, Update, Delete): pass
 

@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
+
 from flask import Flask, flash, g
 
-from .. import EasyMode
-from ..decorators import xhr_api, inject
-from ..exceptions import XHRError
-from ..mixins.model import CRUD, CRUDI, object_injected
-
-em = EasyMode()
+from flask_easymode.decorators import xhr_api, inject
+from flask_easymode.exceptions import XHRError
+from flask_easymode.mixins.model import CRUD, CRUDI, object_injected
 
 def create_app():
 	app = Flask('easymode')
+
+	app.config['TESTING'] = True
+	app.config['SECRET_KEY'] = '123454fdsafdsfdsfdsfds'
 
 	@app.route('/')
 	def index():
@@ -91,9 +92,6 @@ def create_app():
 
 	return app
 
-def app_setup():
-	em.init_app(app)
-
 class InjectableClass(CRUDI):
 
 	def __init__(self):
@@ -106,7 +104,3 @@ def injectable_injected(cls, conditions, **kwargs):
 	for k, v in conditions:
 		if k == 'slug_name' and v == 'joe-slug':
 			return InjectableClass()
-
-app = create_app()
-app.config['TESTING'] = True
-app.config['SECRET_KEY'] = '123454fdsafdsfdsfdsfds'

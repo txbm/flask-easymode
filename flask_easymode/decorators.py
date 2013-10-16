@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from flask import current_app, redirect, request, flash, url_for, g, \
-	abort, get_flashed_messages, jsonify
+from flask import (current_app, redirect, request, flash, url_for, g,
+	abort, get_flashed_messages, jsonify)
 
 from functools import wraps
 from collections import namedtuple
 
-from . import EasyMode
-from .exceptions import XHRError
+from flask_easymode import EasyMode
+from flask_easymode.exceptions import XHRError
 
 xhr = namedtuple('xhr', ('data', 'messages', 'html'))
 
@@ -22,15 +22,13 @@ def xhr_api(allow_http=None):
 	def _decorator(f):
 		@wraps(f)
 		def _wrapper(*args, **kwargs):
-			if not current_app.config.get('XHR_API_ENABLED'):
+			if not EasyMode.config(current_app).XHR_API_ENABLE:
 				view_result = f(*args, **kwargs)
 				if not view_result:
 					abort(403)
 				return view_result
 			
-			a = allow_http
-			if a is None:
-				a = current_app.config.get('XHR_API_ALLOW_HTTP')
+			a = allow_http or EasyMode.config(current_app).XHR_API_ALLOW_HTTP
 
 			if not request.is_xhr and not a:
 				raise XHRError('XHR endpoints must be called asynchronously.', status_code=500)
@@ -47,7 +45,7 @@ def inject(*classes, **options):
 	def _decorator(f):
 		@wraps(f)
 		def _wrapper(*args, **kwargs):
-			if not current_app.config.get('VIEW_DI_ENABLED'):
+			if not EasyMode.config(current_app).DI_ENABLE:
 				return f(*args, **kwargs)
 			
 			# most to least specific to eliminate ambiguity when dealing with nested prefix class names
@@ -81,11 +79,15 @@ def inject(*classes, **options):
 
 				injections.setdefault(cls_name, {'class': cls, 'params': [], 'conditions': []})
 			
-			_extract_injections(kwargs)
-			_extract_injections(request.form.to_dict())
-			json = request.get_json(silent=True) or {}
-			_extract_injections(json)
-			_extract_injections(request.args)
+			sources = {
+				'json': request.get_json(silent=True) or {},
+				'form': request.form.to_dict(),
+				'query_string': request.args,
+				'params': kwargs
+			}
+			scan = EasyMode.config(current_app).DI_SCAN
+			
+			[_extract_injections(sources[s]) for s in scan]
 
 			for cls_name, i in injections.iteritems():
 				if cls_name in classes:

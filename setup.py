@@ -10,14 +10,13 @@ setup(
 	description='Make Flask development even easier',
 	long_description=open('README.md').read(),
 	packages=find_packages(),
-	zip_safe=False,
-	include_package_data=True,
 	platforms='any',
 	install_requires=[
 		'Flask',
 		'Werkzeug',
 		'blinker',
-		'simplejson'
+		'simplejson',
+		'mrpython'
 	],
 	extras_require={
 		'test': [
