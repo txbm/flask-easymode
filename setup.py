@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='flask-easymode',
-    version='0.0.12',
+    version='0.0.13',
     url='http://github.com/petermelias/flask-easymode',
     license='MIT',
     author='Peter M. Elias',
