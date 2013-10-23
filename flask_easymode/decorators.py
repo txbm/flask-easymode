@@ -57,7 +57,7 @@ def inject(*classes, **options):
             classes_by_len.reverse()
 
             injections = {}
-            options.setdefault('default', 'load')
+            options.setdefault('nomatch', 'skip')
             options.setdefault('lists', 'denote')
 
             def _param_to_cls_prop_pair(param):
@@ -99,7 +99,7 @@ def inject(*classes, **options):
             for cls_name, i in injections.iteritems():
                 if cls_name in classes:
                     o = None
-                    if i['conditions'] or options.get('default') == 'load':
+                    if i['conditions'] or options.get('nomatch') == 'load':
                         try:
                             o = i['class'].load(i['conditions'])
                         except AttributeError:

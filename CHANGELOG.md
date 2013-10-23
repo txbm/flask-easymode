@@ -1,5 +1,8 @@
 ## Changelog
-current version: v0.0.12
+current version: v0.0.13
+
+### v0.0.13
+* Changed the ``` default ``` parameter to ``` nomatch ``` because "default" is highly ambiguous and I have no idea why it was that way. Current options are ``` [skip, load] ```
 
 ### v0.0.12
 * Added the ``` lists='denote' ``` option to the ``` @inject ``` decorator. This default setting appends the class name of an injected result with the suffix '_list' to make it clear that a collection result is expected.
