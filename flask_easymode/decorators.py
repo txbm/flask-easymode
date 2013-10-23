@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from flask import (current_app, redirect, request, flash, url_for, g,
-	abort, get_flashed_messages, jsonify)
+from flask import (current_app, request,
+                   g, abort, get_flashed_messages, jsonify)
 
 from functools import wraps
 from collections import namedtuple
@@ -11,100 +11,111 @@ from flask_easymode.exceptions import XHRError
 
 xhr = namedtuple('xhr', ('data', 'messages', 'html'))
 
+
 class XHR(object):
 
-	def __init__(self):
-		self.html = ''
-		self.data = {}
-		self.messages = []
+    def __init__(self):
+        self.html = ''
+        self.data = {}
+        self.messages = []
+
 
 def xhr_api(allow_http=None):
-	def _decorator(f):
-		@wraps(f)
-		def _wrapper(*args, **kwargs):
-			if not EasyMode.config(current_app).XHR_API_ENABLE:
-				view_result = f(*args, **kwargs)
-				if not view_result:
-					abort(403)
-				return view_result
-			
-			a = allow_http or EasyMode.config(current_app).XHR_API_ALLOW_HTTP
+    def _decorator(f):
+        @wraps(f)
+        def _wrapper(*args, **kwargs):
+            if not EasyMode.config(current_app).XHR_API_ENABLE:
+                view_result = f(*args, **kwargs)
+                if not view_result:
+                    abort(403)
+                return view_result
 
-			if not request.is_xhr and not a:
-				raise XHRError('XHR endpoints must be called asynchronously.', status_code=500)
+            a = allow_http or EasyMode.config(current_app).XHR_API_ALLOW_HTTP
 
-			g.xhr = XHR()
-			f(*args, **kwargs)
-			g.xhr.messages.extend(get_flashed_messages(with_categories=True))
-			return jsonify(data=g.xhr.data, messages=g.xhr.messages, html=g.xhr.html)
-		return _wrapper
-	return _decorator
+            if not request.is_xhr and not a:
+                raise XHRError(
+                    'XHR endpoints must be called asynchronously.', status_code=500)
+
+            g.xhr = XHR()
+            f(*args, **kwargs)
+            g.xhr.messages.extend(get_flashed_messages(with_categories=True))
+            return jsonify(data=g.xhr.data, messages=g.xhr.messages, html=g.xhr.html)
+        return _wrapper
+    return _decorator
 
 
 def inject(*classes, **options):
-	def _decorator(f):
-		@wraps(f)
-		def _wrapper(*args, **kwargs):
-			if not EasyMode.config(current_app).DI_ENABLE:
-				return f(*args, **kwargs)
-			
-			# most to least specific to eliminate ambiguity when dealing with nested prefix class names
-			classes_by_len = sorted(classes, key=len)
-			classes_by_len.reverse()
+    def _decorator(f):
+        @wraps(f)
+        def _wrapper(*args, **kwargs):
+            if not EasyMode.config(current_app).DI_ENABLE:
+                return f(*args, **kwargs)
 
-			injections = {}
-			options.setdefault('default', 'load')
+            # most to least specific to eliminate ambiguity when dealing with
+            # nested prefix class names
+            classes_by_len = sorted(classes, key=len)
+            classes_by_len.reverse()
 
-			def _param_to_cls_prop_pair(param):
-				for cls_name in classes_by_len:
-					r = param.replace(cls_name, '')
-					if r != param:
-						return (cls_name, r[1:])
+            injections = {}
+            options.setdefault('default', 'load')
+            options.setdefault('lists', 'denote')
 
-			def _extract_injections(kvps):
-				for k, v in kvps.iteritems():
-					try:
-						cls_name, prop_name = _param_to_cls_prop_pair(k)
-					except TypeError:
-						continue
-					
-					injections[cls_name]['params'].append(k)
-					injections[cls_name]['conditions'].append((prop_name, v))
+            def _param_to_cls_prop_pair(param):
+                for cls_name in classes_by_len:
+                    r = param.replace(cls_name, '')
+                    if r != param:
+                        return (cls_name, r[1:])
 
-			for cls_name in classes:
-				try:
-					cls = EasyMode._injectables[cls_name]
-				except KeyError:
-					raise RuntimeError('Class "%s" has not been added as injectable. Use EasyMode.add_injectable(cls_name).' % cls_name)
+            def _extract_injections(kvps):
+                for k, v in kvps.iteritems():
+                    try:
+                        cls_name, prop_name = _param_to_cls_prop_pair(k)
+                    except TypeError:
+                        continue
 
-				injections.setdefault(cls_name, {'class': cls, 'params': [], 'conditions': []})
-			
-			sources = {
-				'json': request.get_json(silent=True) or {},
-				'form': request.form.to_dict(),
-				'query_string': request.args,
-				'params': kwargs
-			}
-			scan = EasyMode.config(current_app).DI_SCAN
-			
-			[_extract_injections(sources[s]) for s in scan]
+                    injections[cls_name]['params'].append(k)
+                    injections[cls_name]['conditions'].append((prop_name, v))
 
-			for cls_name, i in injections.iteritems():
-				if cls_name in classes:
-					o = None
-					if i['conditions'] or options.get('default') == 'load':
-						try:
-							o = i['class'].load(i['conditions'])
-						except AttributeError:
-							raise RuntimeError('To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
+            for cls_name in classes:
+                try:
+                    cls = EasyMode._injectables[cls_name]
+                except KeyError:
+                    raise RuntimeError(
+                        'Class "%s" has not been added as injectable. Use EasyMode.add_injectable(cls_name).' % cls_name)
 
-					if options.get('as_args'):
-						kwargs[cls_name] = o
-					else:
-						setattr(g, cls_name, o)
-	
-					[kwargs.pop(p, None) for p in i['params']]
+                injections.setdefault(
+                    cls_name, {'class': cls, 'params': [], 'conditions': []})
 
-			return f(*args, **kwargs)
-		return _wrapper
-	return _decorator
+            sources = {
+                'json': request.get_json(silent=True) or {},
+                'form': request.form.to_dict(),
+                'query_string': request.args,
+                'params': kwargs
+            }
+            scan = EasyMode.config(current_app).DI_SCAN
+
+            [_extract_injections(sources[s]) for s in scan]
+
+            for cls_name, i in injections.iteritems():
+                if cls_name in classes:
+                    o = None
+                    if i['conditions'] or options.get('default') == 'load':
+                        try:
+                            o = i['class'].load(i['conditions'])
+                        except AttributeError:
+                            raise RuntimeError(
+                                'To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
+
+                    if type(o) is list and options.get('lists') == 'denote':
+                        cls_name = cls_name + '_list'
+
+                    if options.get('as_args'):
+                        kwargs[cls_name] = o
+                    else:
+                        setattr(g, cls_name, o)
+
+                    [kwargs.pop(p, None) for p in i['params']]
+
+            return f(*args, **kwargs)
+        return _wrapper
+    return _decorator
