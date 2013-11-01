@@ -1,5 +1,8 @@
 ## Changelog
-current version: v0.0.13
+current version: v0.0.14
+
+### v0.0.14
+* Minor change on ``` add_injectables ```
 
 ### v0.0.13
 * Changed the ``` default ``` parameter to ``` nomatch ``` because "default" is highly ambiguous and I have no idea why it was that way. Current options are ``` [skip, load] ```
@@ -25,7 +28,7 @@ current version: v0.0.13
 * request.get_json() parsed for injection parameters.
 * Alternate class names can be specified when adding new classes to the injector (this can happen as many times as you want)
 * The Update Mixin has been modified to use a classmethod like the others and now operates on the instance as an argument.
-  this changes the API from ```o.update(**data) ``` to ```ClassName.update(o, **data) ```. The reasoning behind this was to
+  this changes the API from ``` o.update(**data) ``` to ``` ClassName.update(o, **data) ```. The reasoning behind this was to
   ensure that the consuming signal functions would have the same degree of flexibility in decision making as the other hook
   points for the CRUD system.
 * Removed the default implementations for hook points like update(). It is not mission of the this library to make assumptions

@@ -77,7 +77,7 @@ class EasyMode(object):
             r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", cls_name).lower()
         EasyMode._injectables[cls_name] = cls
 
-    def add_injectables(self, classes):
+    def add_injectables(self, *classes):
         for cls in classes:
             c, alt = cls, None
             try:

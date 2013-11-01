@@ -1,3 +1,4 @@
 * Add reverse dependency lookup capability against parameters that resolve to other injectable classes [may be out of scope]
 * Add an automatic API generator for CRUD operations. Variable modes[semi-auto, full-auto]
 * Examine a way to have the injector read data that has been validated already. This may become important in order to support the possibility of the incoming data needing to be transformed in some way before it can be used for proper lookup. Also makes it easy to abort a request that's missing data before wasting a trip to the database only to reach the same conclusion.
+* Write tests for helpers...

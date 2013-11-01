@@ -34,12 +34,16 @@ def xhr_api(allow_http=None):
 
             if not request.is_xhr and not a:
                 raise XHRError(
-                    'XHR endpoints must be called asynchronously.', status_code=500)
+                    'XHR endpoints must be called asynchronously.',
+                    status_code=500)
 
             g.xhr = XHR()
             f(*args, **kwargs)
             g.xhr.messages.extend(get_flashed_messages(with_categories=True))
-            return jsonify(data=g.xhr.data, messages=g.xhr.messages, html=g.xhr.html)
+
+            return jsonify(data=g.xhr.data,
+                           messages=g.xhr.messages,
+                           html=g.xhr.html)
         return _wrapper
     return _decorator
 
@@ -81,7 +85,8 @@ def inject(*classes, **options):
                     cls = EasyMode._injectables[cls_name]
                 except KeyError:
                     raise RuntimeError(
-                        'Class "%s" has not been added as injectable. Use EasyMode.add_injectable(cls_name).' % cls_name)
+                        'Class "%s" has not been added as injectable. \
+                        Use EasyMode.add_injectable(cls_name).' % cls_name)
 
                 injections.setdefault(
                     cls_name, {'class': cls, 'params': [], 'conditions': []})
@@ -104,7 +109,11 @@ def inject(*classes, **options):
                             o = i['class'].load(i['conditions'])
                         except AttributeError:
                             raise RuntimeError(
-                                'To use %s with dependency injection, the class must either define a load(cls, conditions, **kwargs) interface or just inherit from the provided mixin.' % i['class'].__name__)
+                                'To use %s with dependency injection, the \
+                                class must either define a load(cls, \
+                                conditions, **kwargs) interface or just \
+                                inherit from the provided mixin.'
+                                % i['class'].__name__)
 
                     if type(o) is list and options.get('lists') == 'denote':
                         cls_name = cls_name + '_list'
