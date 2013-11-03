@@ -74,7 +74,8 @@ class EasyMode(object):
     def add_injectable(self, cls, alt=None):
         cls_name = alt or cls.__name__
         cls_name = re.sub(
-            r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", cls_name).lower()
+            r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>",
+            cls_name).lower()
         EasyMode._injectables[cls_name] = cls
 
     def add_injectables(self, *classes):
@@ -84,4 +85,4 @@ class EasyMode(object):
                 c, alt = cls
             except (TypeError, ValueError):
                 pass
-            self._add_injectable(c, alt)
+            self.add_injectable(c, alt)

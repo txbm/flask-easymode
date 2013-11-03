@@ -1,5 +1,8 @@
 ## Changelog
-current version: v0.0.15
+current version: v0.0.16
+
+### v0.0.16
+* Bugfix
 
 ### v0.0.15
 * Bugfix
