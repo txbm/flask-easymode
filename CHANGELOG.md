@@ -1,5 +1,8 @@
 ## Changelog
-current version: v0.0.14
+current version: v0.0.15
+
+### v0.0.15
+* Bugfix
 
 ### v0.0.14
 * Minor change on ``` add_injectables ```

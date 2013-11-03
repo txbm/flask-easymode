@@ -82,6 +82,6 @@ class EasyMode(object):
             c, alt = cls, None
             try:
                 c, alt = cls
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
             self._add_injectable(c, alt)
