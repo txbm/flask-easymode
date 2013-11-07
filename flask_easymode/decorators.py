@@ -101,19 +101,30 @@ def inject(*classes, **options):
 
             [_extract_injections(sources[s]) for s in scan]
 
+            def _load(cls, cnd=[]):
+                try:
+                    o = cls.load(cnd)
+                except AttributeError:
+                    raise RuntimeError(
+                        'To use %s with dependency injection, the \
+                        class must either define a load(cls, \
+                        conditions, **kwargs) interface or just \
+                        inherit from the provided mixin.'
+                        % cls.__name__)
+                return o
+
             for cls_name, i in injections.iteritems():
                 if cls_name in classes:
                     o = None
-                    if i['conditions'] or options.get('nomatch') == 'load':
-                        try:
-                            o = i['class'].load(i['conditions'])
-                        except AttributeError:
-                            raise RuntimeError(
-                                'To use %s with dependency injection, the \
-                                class must either define a load(cls, \
-                                conditions, **kwargs) interface or just \
-                                inherit from the provided mixin.'
-                                % i['class'].__name__)
+                    nomatch = options.get('nomatch')
+                    if not i['conditions'] and nomatch == 'load':
+                        o = _load(i['class'])
+
+                    if i['conditions']:
+                        o = _load(i['class'], i['conditions'])
+
+                        if not o and nomatch == 'error':
+                            return abort(400)
 
                     if type(o) is list and options.get('lists') == 'denote':
                         cls_name = cls_name + '_list'
