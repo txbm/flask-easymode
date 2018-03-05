@@ -1,5 +1,5 @@
 # Flask EasyMode
-[![Build Status](https://travis-ci.org/petermelias/flask-easymode.png?branch=master)](https://travis-ci.org/petermelias/flask-easymode) [![Coverage Status](https://coveralls.io/repos/petermelias/flask-easymode/badge.png?branch=master)](https://coveralls.io/r/petermelias/flask-easymode?branch=master) [![Downloads](https://pypip.in/d/flask-easymode/badge.png)](https://crate.io/packages/flask-easymode) [![Downloads](https://pypip.in/v/flask-easymode/badge.png)](https://crate.io/packages/flask-easymode)
+[![Build Status](https://travis-ci.org/petermelias/flask-easymode.png?branch=master)](https://travis-ci.org/petermelias/flask-easymode) [![Coverage Status](https://coveralls.io/repos/petermelias/flask-easymode/badge.png?branch=master)](https://coveralls.io/r/petermelias/flask-easymode?branch=master) [![Downloads](https://img.shields.io/pypi/dm/flask-easymode.svg)](https://crate.io/packages/flask-easymode) [![Downloads](https://img.shields.io/pypi/v/flask-easymode.svg)](https://crate.io/packages/flask-easymode)
 
 ## Motivation
 
